@@ -25,10 +25,8 @@ export default function ImportScreen() {
             // 2. Read the file content as a string
             const file = new File(uri);
             const fileContent = await file.text();
-            console.log("File content loaded:", fileContent.substring(0, 100)); // Log first 100 chars for debugging
             const feeds = processOpml(fileContent);
             dispatch(importFromOpml(feeds));
-            console.log("Imported feeds:", feeds);
         } catch (error) {
             Alert.alert("Error", "Could not read the XML file.");
             throw error;
