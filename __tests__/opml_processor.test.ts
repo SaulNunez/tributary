@@ -65,4 +65,26 @@ describe('processOpml', () => {
         const result = processOpml(invalidOpml);
         expect(result).toEqual([]);
     });
+
+    it('should handle Pocket Casts OPML format', () => {
+        const pocketCastsOpml = `
+            <?xml version="1.0" encoding="UTF-8"?>
+            <opml version="2.0">
+                <head>
+                    <title>Pocket Casts Subscriptions</title>
+                </head>
+                <body>
+                    <outline text="feeds">
+                        <outline type="rss" text="TechCrunch" xmlUrl="https://techcrunch.com/feed/" />
+                    </outline>
+                </body>
+            </opml>
+        `;
+
+        const result = processOpml(pocketCastsOpml);
+
+        expect(result).toEqual([
+            { name: 'TechCrunch', url: 'https://techcrunch.com/feed/' }
+        ]);
+    });
 });
