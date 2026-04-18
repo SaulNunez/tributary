@@ -1,98 +1,60 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
+import { useAppSelector } from "@/hooks/redux";
+import { selectAllSubscriptions } from "@/store/slices/subscriptionsSlice";
+import { Feed } from "@/types";
+import { useRouter } from "expo-router";
+import { FlatList, Image, ListRenderItemInfo, StyleSheet, View } from "react-native";
+import { Button, List, Text } from "react-native-paper";
 
-import { HelloWave } from '@/components/hello-wave';
-import ParallaxScrollView from '@/components/parallax-scroll-view';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { Link } from 'expo-router';
+const NoFeedScreen = () => {
+    const router = useRouter();
 
-export default function HomeScreen() {
-  return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
+    return (
+        <View style={styles.emptyContainer}>
+            <Text variant="titleMedium" style={styles.emptyText}>No feed found</Text>
+            <Button icon="rss" mode="contained" onPress={() => { /* TODO: Implement Add RSS */ }} style={styles.button}>
+                Add RSS feed
+            </Button>
+            <Button icon="import" mode="outlined" onPress={() => router.push('/import')} style={styles.button}>
+                Import from another app
+            </Button>
+        </View>
+    );
+}
+
+const FeedElement = ({item}: ListRenderItemInfo<Feed>) => 
+    <List.Item  
+        title={item.name}
+        left={(props) => (<Image source={{uri: item.iconLocation}} {...props} />)}
+    />;
+
+export default function FeedScreen(){
+    const feeds = useAppSelector(selectAllSubscriptions);
+
+    return(
+        <FlatList
+        data={feeds}
+        contentContainerStyle={feeds.length === 0 ? styles.emptyList : undefined}
+        renderItem={FeedElement}
+        ListEmptyComponent={NoFeedScreen}
         />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <Link href="/modal">
-          <Link.Trigger>
-            <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-          </Link.Trigger>
-          <Link.Preview />
-          <Link.Menu>
-            <Link.MenuAction title="Action" icon="cube" onPress={() => alert('Action pressed')} />
-            <Link.MenuAction
-              title="Share"
-              icon="square.and.arrow.up"
-              onPress={() => alert('Share pressed')}
-            />
-            <Link.Menu title="More" icon="ellipsis">
-              <Link.MenuAction
-                title="Delete"
-                icon="trash"
-                destructive
-                onPress={() => alert('Delete pressed')}
-              />
-            </Link.Menu>
-          </Link.Menu>
-        </Link>
-
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
-  );
+    );
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
-  },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
-  },
+    emptyList: {
+        flexGrow: 1,
+    },
+    emptyContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        padding: 20,
+        gap: 12,
+    },
+    emptyText: {
+        marginBottom: 8,
+    },
+    button: {
+        width: '100%',
+    }
 });
