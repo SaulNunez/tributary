@@ -12,9 +12,9 @@ export const importFromOpml = createAsyncThunk(
       id: item.url,
       urlFeed: item.url,
       name: item.name,
-      lastSyncedAt: new Date(0),
+      lastSyncedAt: new Date(0).toISOString(),
       iconLocation: '',
-      lastUpdateTime: new Date(0),
+      lastUpdateTime: new Date(0).toISOString(),
       // itunes is undefined for now
     }));
 
@@ -47,7 +47,7 @@ export const importFromOpml = createAsyncThunk(
           changes: {
             iconLocation: icon,
             itunes: itunes,
-            lastUpdateTime: lastUpdate
+            lastUpdateTime: lastUpdate.toISOString()
           }
         }));
       } catch (e) {

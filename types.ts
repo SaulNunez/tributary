@@ -1,9 +1,9 @@
 export interface Feed {
     urlFeed: string
-    lastSyncedAt: Date,
+    lastSyncedAt: string,
     name: string
     iconLocation: string,
-    lastUpdateTime: Date,
+    lastUpdateTime: string,
     id: string,
     itunes?: {
         explicit: boolean
