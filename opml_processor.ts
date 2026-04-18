@@ -8,12 +8,14 @@ export function processOpml(input: string) {
 
     const parsedData = parser.parse(input);
 
-    if(parsedData?.opml?.body?.outline){
+    if (parsedData?.opml?.body?.outline) {
         const feeds = Array.isArray(parsedData.opml.body.outline) ? parsedData.opml.body.outline : [parsedData.opml.body.outline];
-        return feeds.map((feedElement : any) => ({
-            url: feedElement["@_xmlUrl"],
-            name: feedElement["@_text"]
-        }));
+        return feeds
+            .filter((feedElement: any) => feedElement["@_xmlUrl"])
+            .map((feedElement: any) => ({
+                url: feedElement["@_xmlUrl"],
+                name: feedElement["@_text"]
+            }));
     }
 
     return [];
