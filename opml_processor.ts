@@ -8,11 +8,11 @@ export function processOpml(input: string) {
 
     const parsedData = parser.parse(input);
 
-    if(parsedData.opml && parsedData.opml.body && parsedData.opml.body.outline && parsedData.opml.body.outline.length > 0){
+    if(parsedData?.opml?.body?.outline){
         const feeds = Array.isArray(parsedData.opml.body.outline) ? parsedData.opml.body.outline : [parsedData.opml.body.outline];
         return feeds.map((feedElement : any) => ({
-            url: feedElement["@xmlUrl"],
-            name: feedElement["@text"]
+            url: feedElement["@_xmlUrl"],
+            name: feedElement["@_text"]
         }));
     }
 
