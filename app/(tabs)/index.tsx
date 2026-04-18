@@ -21,21 +21,21 @@ const NoFeedScreen = () => {
     );
 }
 
-const FeedElement = ({item}: ListRenderItemInfo<Feed>) => 
-    <List.Item  
-        title={item.name}
-        left={(props) => (<Image source={{uri: item.iconLocation}} {...props} />)}
-    />;
-
-export default function FeedScreen(){
+export default function FeedScreen() {
     const feeds = useAppSelector(selectAllSubscriptions);
 
-    return(
+    const FeedElement = ({ item }: ListRenderItemInfo<Feed>) =>
+        <List.Item
+            title={item.name}
+            left={(props) => (<Image source={{ uri: item.iconLocation }} {...props} />)}
+        />;
+
+    return (
         <FlatList
-        data={feeds}
-        contentContainerStyle={feeds.length === 0 ? styles.emptyList : undefined}
-        renderItem={FeedElement}
-        ListEmptyComponent={NoFeedScreen}
+            data={feeds}
+            contentContainerStyle={feeds.length === 0 ? styles.emptyList : undefined}
+            renderItem={FeedElement}
+            ListEmptyComponent={NoFeedScreen}
         />
     );
 }
