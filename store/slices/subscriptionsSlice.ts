@@ -1,5 +1,6 @@
 import { Feed } from '@/types';
 import { createEntityAdapter, createSlice } from '@reduxjs/toolkit';
+import { RootState } from '../store';
 
 const subscriptionsAdapter = createEntityAdapter({
   selectId: (subscription: Feed) => subscription.id,
@@ -20,5 +21,11 @@ const subscriptionsSlice = createSlice({
 
 export const { bulkAddSubscriptions, addSubscription, 
   removeSubscription, updateSubscriptionMetadata } = subscriptionsSlice.actions;
+
+export const {
+  selectAll: selectAllSubscriptions,
+  selectById: selectSubscriptionById,
+  selectIds: selectSubscriptionIds,
+} = subscriptionsAdapter.getSelectors((state: RootState) => state.subscriptions);
 
 export default subscriptionsSlice.reducer;
