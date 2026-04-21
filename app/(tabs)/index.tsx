@@ -4,7 +4,7 @@ import { Feed } from "@/types";
 import { useRouter } from "expo-router";
 import { useState } from "react";
 import { FlatList, Image, ListRenderItemInfo, StyleSheet, View } from "react-native";
-import { Button, IconButton, List, Menu, Text } from "react-native-paper";
+import { Button, IconButton, List, Menu, Text, useTheme } from "react-native-paper";
 
 const NoFeedScreen = () => {
     const router = useRouter();
@@ -26,6 +26,7 @@ export default function FeedScreen() {
     const [openElementId, setOpenElementId] = useState<string | null>(null);
     const feeds = useAppSelector(selectAllSubscriptions);
     const dispatch = useAppDispatch();
+    const theme = useTheme();
 
     const FeedElement = ({ item }: ListRenderItemInfo<Feed>) =>
         <List.Item
@@ -43,6 +44,7 @@ export default function FeedScreen() {
 
     return (
         <FlatList
+            style={{ backgroundColor: theme.colors.background }}
             data={feeds}
             contentContainerStyle={feeds.length === 0 ? styles.emptyList : undefined}
             renderItem={FeedElement}
