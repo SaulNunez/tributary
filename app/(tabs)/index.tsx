@@ -1,9 +1,10 @@
-import { useAppSelector } from "@/hooks/redux";
-import { selectAllSubscriptions } from "@/store/slices/subscriptionsSlice";
+import { useAppDispatch, useAppSelector } from "@/hooks/redux";
+import { removeSubscription, selectAllSubscriptions } from "@/store/slices/subscriptionsSlice";
 import { Feed } from "@/types";
 import { useRouter } from "expo-router";
+import { useState } from "react";
 import { FlatList, Image, ListRenderItemInfo, StyleSheet, View } from "react-native";
-import { Button, List, Text } from "react-native-paper";
+import { Button, IconButton, List, Menu, Text } from "react-native-paper";
 
 const NoFeedScreen = () => {
     const router = useRouter();
@@ -22,12 +23,22 @@ const NoFeedScreen = () => {
 }
 
 export default function FeedScreen() {
+    const [openElementId, setOpenElementId] = useState<string | null>(null);
     const feeds = useAppSelector(selectAllSubscriptions);
+    const dispatch = useAppDispatch();
 
     const FeedElement = ({ item }: ListRenderItemInfo<Feed>) =>
         <List.Item
             title={item.name}
             left={(props) => (<Image source={{ uri: item.iconLocation }} {...props} />)}
+            right={props => (
+                <Menu
+                    visible={item.id === openElementId}
+                    onDismiss={() => setOpenElementId(null)}
+                    anchor={<IconButton icon="dots-vertical" onPress={() => setOpenElementId(item.id)} {...props} />} >
+                    <Menu.Item leadingIcon="delete" onPress={() => dispatch(removeSubscription(item.id))} title="Delete" />
+                </Menu>
+            )}
         />;
 
     return (
