@@ -1,54 +1,68 @@
 import { useAppDispatch, useAppSelector } from "@/hooks/redux";
-import { removeSubscription, selectAllSubscriptions } from "@/store/slices/subscriptionsSlice";
-import { Feed } from "@/types";
+import { markItemAsReadThunk, selectAllFeedItems } from "@/store/slices/itemSlice";
+import { selectAllSubscriptions } from "@/store/slices/subscriptionsSlice";
+import { FeedItem } from "@/types";
 import { useRouter } from "expo-router";
-import { useState } from "react";
 import { FlatList, Image, ListRenderItemInfo, StyleSheet, View } from "react-native";
-import { Button, IconButton, List, Menu, Text, useTheme } from "react-native-paper";
+import { Button, List, Text, useTheme } from "react-native-paper";
 
-const NoFeedScreen = () => {
+const NoItemsScreen = () => {
     const router = useRouter();
 
     return (
         <View style={styles.emptyContainer}>
-            <Text variant="titleMedium" style={styles.emptyText}>No feed found</Text>
-            <Button icon="rss" mode="contained" onPress={() => { /* TODO: Implement Add RSS */ }} style={styles.button}>
-                Add RSS feed
-            </Button>
-            <Button icon="import" mode="outlined" onPress={() => router.push('/import')} style={styles.button}>
-                Import from another app
+            <Text variant="titleMedium" style={styles.emptyText}>No items yet</Text>
+            <Button icon="rss" mode="contained" onPress={() => router.push('/subscriptions')} style={styles.button}>
+                Manage subscriptions
             </Button>
         </View>
     );
 }
 
-export default function FeedScreen() {
-    const [openElementId, setOpenElementId] = useState<string | null>(null);
+export default function HomeScreen() {
+    const items = useAppSelector(selectAllFeedItems);
     const feeds = useAppSelector(selectAllSubscriptions);
     const dispatch = useAppDispatch();
     const theme = useTheme();
+    const router = useRouter();
 
-    const FeedElement = ({ item }: ListRenderItemInfo<Feed>) =>
-        <List.Item
-            title={item.name}
-            left={(props) => (<Image source={{ uri: item.iconLocation }} {...props} />)}
-            right={props => (
-                <Menu
-                    visible={item.id === openElementId}
-                    onDismiss={() => setOpenElementId(null)}
-                    anchor={<IconButton icon="dots-vertical" onPress={() => setOpenElementId(item.id)} {...props} />} >
-                    <Menu.Item leadingIcon="delete" onPress={() => dispatch(removeSubscription(item.id))} title="Delete" />
-                </Menu>
-            )}
-        />;
+    const feedsById = Object.fromEntries(feeds.map((feed) => [feed.id, feed]));
+
+    const ItemElement = ({ item }: ListRenderItemInfo<FeedItem>) => {
+        const feed = feedsById[item.feedId];
+        const formattedDate = item.pubDate
+            ? new Intl.DateTimeFormat(undefined, { dateStyle: 'medium' }).format(new Date(item.pubDate))
+            : '';
+
+        return (
+            <List.Item
+                onPress={() => {
+                    dispatch(markItemAsReadThunk(item.id));
+                    router.push({
+                        pathname: '/[itemId]',
+                        params: { itemId: item.id },
+                    });
+                }}
+                title={item.title}
+                titleStyle={{ color: item.isRead ? theme.colors.onSurfaceDisabled : undefined }}
+                description={[feed?.name, formattedDate].filter(Boolean).join(' · ')}
+                left={(props) => (
+                    feed?.iconLocation
+                        ? <Image source={{ uri: feed.iconLocation }} {...props} />
+                        : <List.Icon {...props} icon="rss" />
+                )}
+            />
+        );
+    };
 
     return (
         <FlatList
             style={{ backgroundColor: theme.colors.background }}
-            data={feeds}
-            contentContainerStyle={feeds.length === 0 ? styles.emptyList : undefined}
-            renderItem={FeedElement}
-            ListEmptyComponent={NoFeedScreen}
+            data={items}
+            keyExtractor={(item) => item.id}
+            contentContainerStyle={items.length === 0 ? styles.emptyList : undefined}
+            renderItem={ItemElement}
+            ListEmptyComponent={NoItemsScreen}
         />
     );
 }
