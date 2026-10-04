@@ -5,7 +5,12 @@ import {
   upsertFeedItemsDb,
 } from '@/db/repository';
 import { FeedItem } from '@/types';
-import { createAsyncThunk, createEntityAdapter, createSlice } from '@reduxjs/toolkit';
+import {
+  createAsyncThunk,
+  createEntityAdapter,
+  createSlice,
+  PayloadAction,
+} from '@reduxjs/toolkit';
 import type { RootState } from '../store';
 
 const itemsAdapter = createEntityAdapter({
@@ -47,8 +52,14 @@ const itemsSlice = createSlice({
   name: 'items',
   initialState: itemsAdapter.getInitialState(),
   reducers: {
-    receivedItems: (state, action) => {
-      itemsAdapter.upsertMany(state, action.payload);
+    receivedItems: (state, action: PayloadAction<FeedItem[]>) => {
+      // Freshly parsed feed items always arrive with isRead: false, so never
+      // let an incoming item clear the read state of one we already have.
+      const items = action.payload.map((item) => {
+        const existing = state.entities[item.id];
+        return existing?.isRead ? { ...item, isRead: true } : item;
+      });
+      itemsAdapter.upsertMany(state, items);
     },
     markAsRead: (state, action) => {
       itemsAdapter.updateOne(state, {
