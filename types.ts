@@ -12,6 +12,7 @@ export interface Feed {
 
 export interface FeedItem {
     id: string,
+    feedId: string,
     title: string,
     link: string,
     pubDate: string,
